@@ -2,7 +2,6 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    public static int n, q;
     public static int[] parents = new int[100001];
     public static int[] powers = new int[100001];
     public static int[][] arr = new int[100001][21];
@@ -13,9 +12,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-
-        n = Integer.parseInt(st.nextToken());
-        q = Integer.parseInt(st.nextToken());
+        int n = Integer.parseInt(st.nextToken());
+        int q = Integer.parseInt(st.nextToken());
+        
         st = new StringTokenizer(br.readLine());
         st.nextToken();
 
