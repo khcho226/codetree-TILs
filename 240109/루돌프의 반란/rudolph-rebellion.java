@@ -59,36 +59,21 @@ public class Main {
     }
 
     public static void moveRudolf() {
-        boolean flag = true;
-        int x = 1;
+        int minDis = Integer.MAX_VALUE;
         int[] santa = new int[2];
 
-        while (flag) {
-            for (int i = Math.max(rudolf[0] - x, 0); i <= Math.min(rudolf[0] + x, n); i++) {
-                if (i == rudolf[0] - x || i == rudolf[0] + x) {
-                    for (int j = Math.max(rudolf[1] - x, 0); j <= Math.min(rudolf[1] + x, n); j++) {
-                        if (board[i][j] > 0) {
-                            santa[0] = i;
-                            santa[1] = j;
-                            flag = false;
-                        }
-                    }
-                } else {
-                    if (rudolf[1] - x > 0 && board[i][rudolf[1] - x] > 0) {
-                        santa[0] = i;
-                        santa[1] = rudolf[1] - x;
-                        flag = false;
-                    }
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (board[i][j] > 0) {
+                    int dis = (i - rudolf[0]) * (i - rudolf[0]) + (j - rudolf[1]) * (j - rudolf[1]);
 
-                    if (rudolf[1] + x <= n && board[i][rudolf[1] + x] > 0) {
+                    if (dis <= minDis) {
+                        minDis = dis;
                         santa[0] = i;
-                        santa[1] = rudolf[1] + x;
-                        flag = false;
+                        santa[1] = j;
                     }
                 }
             }
-
-            x++;
         }
 
         int tr = santa[0] - rudolf[0];
