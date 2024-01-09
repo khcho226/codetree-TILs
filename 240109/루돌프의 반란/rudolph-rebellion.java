@@ -2,11 +2,34 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    public static int n, m, p, num, c, d;
-    public static int[][] board = new int[51][51];
-    public static int[] rudolf;
-    public static int[][] santas = new int[31][4];
-    public static int[][] dirs = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    static class Tuple implements Comparable<Tuple> {
+        int first, second, third;
+
+        Tuple(int first, int second, int third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+
+        @Override
+        public int compareTo(Tuple other) {
+            if (this.first != other.first) {
+                return Integer.compare(this.first, other.first);
+            }
+
+            if (this.second != other.second) {
+                return Integer.compare(this.second, other.second);
+            }
+
+            return Integer.compare(this.third, other.third);
+        }
+    }
+
+    static int n, m, p, c, d, num;
+    static int[][] board = new int[51][51];
+    static int[] rudolf;
+    static int[][] santas = new int[31][4];
+    static int[][] dirs = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -15,9 +38,10 @@ public class Main {
 
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        p = num = Integer.parseInt(st.nextToken());
+        p = Integer.parseInt(st.nextToken());
         c = Integer.parseInt(st.nextToken());
         d = Integer.parseInt(st.nextToken());
+        num = p;
         st = new StringTokenizer(br.readLine());
 
         int rr = Integer.parseInt(st.nextToken());
@@ -50,7 +74,6 @@ public class Main {
             }
         }
 
-
         for (int i = 1; i <= p; i++) {
             sb.append(santas[i][2]).append(" ");
         }
@@ -58,20 +81,19 @@ public class Main {
         System.out.println(sb);
     }
 
-    public static void moveRudolf() {
-        int minDis = Integer.MAX_VALUE;
-        int[] santa = new int[2];
+    static void moveRudolf() {
+        int[] santa = {100, 100};
 
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++) {
-                if (board[i][j] > 0) {
-                    int dis = (i - rudolf[0]) * (i - rudolf[0]) + (j - rudolf[1]) * (j - rudolf[1]);
+        for (int i = 1; i <= p; i++) {
+            if (santas[i][3] >= 0) {
+                int sr = santas[i][0];
+                int sc = santas[i][1];
+                Tuple newTuple = new Tuple((sr - rudolf[0]) * (sr - rudolf[0]) + (sc - rudolf[1]) * (sc - rudolf[1]), -sr, -sc);
+                Tuple curTuple = new Tuple((santa[0] - rudolf[0]) * (santa[0] - rudolf[0]) + (santa[1] - rudolf[1]) * (santa[1] - rudolf[1]), -santa[0], -santa[1]);
 
-                    if (dis <= minDis) {
-                        minDis = dis;
-                        santa[0] = i;
-                        santa[1] = j;
-                    }
+                if (newTuple.compareTo(curTuple) < 0) {
+                    santa[0] = sr;
+                    santa[1] = sc;
                 }
             }
         }
@@ -103,7 +125,7 @@ public class Main {
         rudolf[1] = nc;
     }
 
-    public static void moveSantas() {
+    static void moveSantas() {
         for (int i = 1; i <= p; i++) {
             if (santas[i][3] != 0) {
                 santas[i][3]--;
@@ -112,25 +134,25 @@ public class Main {
 
             int sr = santas[i][0];
             int sc = santas[i][1];
-            int nr, nc;
-            int fr = 0;
-            int fc = 0;
+            int tr, tc;
+            int nr = 0;
+            int nc = 0;
             int minDis = (sr - rudolf[0]) * (sr - rudolf[0]) + (sc - rudolf[1]) * (sc - rudolf[1]);
             int minDir = -1;
 
             for (int j = 0; j < 4; j++) {
-                nr = sr + dirs[j][0];
-                nc = sc + dirs[j][1];
+                tr = sr + dirs[j][0];
+                tc = sc + dirs[j][1];
 
-                if (nr < 1 || n < nr || nc < 1 || n < nc || board[nr][nc] > 0) {
+                if (tr < 1 || n < tr || tc < 1 || n < tc || board[tr][tc] > 0) {
                     continue;
                 }
 
-                int dis = (nr - rudolf[0]) * (nr - rudolf[0]) + (nc - rudolf[1]) * (nc - rudolf[1]);
+                int dis = (tr - rudolf[0]) * (tr - rudolf[0]) + (tc - rudolf[1]) * (tc - rudolf[1]);
 
                 if (dis < minDis) {
-                    fr = nr;
-                    fc = nc;
+                    nr = tr;
+                    nc = tc;
                     minDis = dis;
                     minDir = j;
                 }
@@ -139,60 +161,60 @@ public class Main {
             if (minDir != -1) {
                 board[sr][sc] = 0;
 
-                if (board[fr][fc] == -1) {
-                    collide(fr, fc, dirs[minDir][0], dirs[minDir][1], i, -1);
+                if (board[nr][nc] == -1) {
+                    collide(nr, nc, dirs[minDir][0], dirs[minDir][1], i, -1);
                 } else {
-                    board[fr][fc] = i;
-                    santas[i][0] = fr;
-                    santas[i][1] = fc;
+                    board[nr][nc] = i;
+                    santas[i][0] = nr;
+                    santas[i][1] = nc;
                 }
 
             }
         }
     }
 
-    public static void collide(int nr, int nc, int dirR, int dirC, int idx1, int idx2) {
-        int sr, sc, sDirR, sDirC, idx;
-
+    static void collide(int ir, int ic, int dirR, int dirC, int idx1, int idx2) {
+        int nr, nc, nDirR, nDirC, idx, s;
+        
         if (idx1 == -1) {
-            sr = nr + dirR * c;
-            sc = nc + dirC * c;
-            sDirR = dirR;
-            sDirC = dirC;
+            nDirR = dirR;
+            nDirC = dirC;
             idx = idx2;
-            santas[idx][2] += c;
+            s = c;
         } else {
-            sr = nr - dirR * d;
-            sc = nc - dirC * d;
-            sDirR = -dirR;
-            sDirC = -dirC;
+            nDirR = -dirR;
+            nDirC = -dirC;
             idx = idx1;
-            santas[idx][2] += d;
+            s = d;
         }
+        
+        santas[idx][2] += s;
+        nr = ir + nDirR * s;
+        nc = ic + nDirC * s;
 
-        if (sr < 1 || n < sr || sc < 1 || n < sc) {
+        if (nr < 1 || n < nr || nc < 1 || n < nc) {
             num--;
             santas[idx][3] = -1;
         } else {
-            if (board[sr][sc] > 0) {
-                interact(sr, sc, sDirR, sDirC, board[sr][sc]);
+            if (board[nr][nc] > 0) {
+                interact(nr, nc, nDirR, nDirC, board[nr][nc]);
             }
 
-            board[sr][sc] = idx;
-            santas[idx][0] = sr;
-            santas[idx][1] = sc;
+            board[nr][nc] = idx;
+            santas[idx][0] = nr;
+            santas[idx][1] = nc;
 
-            if (idx1 != -1) {
-                santas[idx][3] = 1;
-            } else {
+            if (idx1 == -1) {
                 santas[idx][3] = 2;
+            } else {
+                santas[idx][3] = 1;
             }
         }
     }
 
-    public static void interact(int sr, int sc, int dirR, int dirC, int idx) {
-        int nr = sr + dirR;
-        int nc = sc + dirC;
+    static void interact(int ir, int ic, int dirR, int dirC, int idx) {
+        int nr = ir + dirR;
+        int nc = ic + dirC;
 
         if (nr < 1 || n < nr || nc < 1 || n < nc) {
             num--;
