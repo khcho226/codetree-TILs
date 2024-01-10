@@ -70,11 +70,7 @@ public class Main {
 
     static void takePhoto(int t) {
         for (int i = 0; i < mapIdx; i++) {
-            while (!que[i].isEmpty()) {
-                if (que[i].peek() > t) {
-                    break;
-                }
-
+            while (!que[i].isEmpty() && que[i].peek() <= t) {
                 que[i].poll();
                 info[i][2]--;
 
