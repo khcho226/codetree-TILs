@@ -23,7 +23,7 @@ public class Main {
             st = new StringTokenizer(br.readLine());
 
             switch (st.nextToken()) {
-                case "100": 
+                case "100":
                     makeSushi(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()), st.nextToken());
                     break;
                 case "200":
@@ -46,7 +46,7 @@ public class Main {
         if (!isEnter[idx]) {
             stack[idx].add(new int[]{t, x});
         } else {
-            putQue(t, x, info[idx][0], info[idx][1], idx);
+            que[idx].offer((l + info[idx][1] - x) % l + info[idx][0]);
         }
     }
 
@@ -64,7 +64,7 @@ public class Main {
         while (!stack[idx].isEmpty()) {
             int[] temp = stack[idx].pop();
 
-            putQue(temp[0], temp[1], t, x, idx);
+            que[idx].offer((l + x - (t + temp[1] - temp[0]) % l) % l + t);
         }
     }
 
@@ -92,21 +92,5 @@ public class Main {
             que[mapIdx] = new PriorityQueue<>();
             mapIdx++;
         }
-    }
-
-    static void putQue(int t1, int x1, int t2, int x2, int idx) {
-        int temp = x1 + t2 - t1;
-
-        if (temp >= l) {
-            temp -= l;
-        }
-
-        temp = x2 - temp;
-
-        if (temp < 0) {
-            temp += l;
-        }
-
-        que[idx].offer(t2 + temp);
     }
 }
