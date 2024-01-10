@@ -46,7 +46,7 @@ public class Main {
         if (!isEnter[idx]) {
             stack[idx].add(new int[]{t, x});
         } else {
-            que[idx].offer((l + info[idx][1] - x) % l + info[idx][0]);
+            que[idx].offer((l + info[idx][1] - x) % l + t);
         }
     }
 
