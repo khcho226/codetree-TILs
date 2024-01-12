@@ -3,13 +3,12 @@ import java.util.*;
 
 public class Main {
     static class Tuple implements Comparable<Tuple> {
-        int p, t;
-        String u;
+        int p, t, id;
 
-        Tuple(int p, int t, String u) {
+        Tuple(int p, int t, int id) {
             this.p = p;
             this.t = t;
-            this.u = u;
+            this.id = id;
         }
 
         @Override
@@ -26,7 +25,7 @@ public class Main {
     static int mapIdx = 1;
     static PriorityQueue<Tuple>[] que = new PriorityQueue[301];
     static int size = 0;
-    static HashSet<String> set = new HashSet<>();
+    static HashSet<Integer>[] set = new HashSet[301];
     static PriorityQueue<Integer> idxQue = new PriorityQueue<>();
     static int[][] info = new int[301][3];
     static int[] grader = new int[50001];
@@ -62,14 +61,20 @@ public class Main {
     }
 
     static void init(int n, String u) {
-        String d = u.split("/")[0];
+        String[] data = u.split("/");
+        String d = data[0];
+        int id = Integer.parseInt(data[1]);
 
         map.put(d, mapIdx);
         mapIdx++;
-        que[map.get(d)] = new PriorityQueue<>();
-        que[map.get(d)].offer(new Tuple(1, 0, u));
+
+        int idx = map.get(d);
+
+        que[idx] = new PriorityQueue<>();
+        que[idx].offer(new Tuple(1, 0, id));
         size++;
-        set.add(u);
+        set[idx] = new HashSet<>();
+        set[idx].add(id);
 
         for (int i = 1; i <= n; i++) {
             idxQue.offer(i);
@@ -77,21 +82,28 @@ public class Main {
     }
 
     static void request(int t, int p , String u) {
-        if (set.contains(u)) {
-            return;
-        }
-
-        String d = u.split("/")[0];
+        String[] data = u.split("/");
+        String d = data[0];
+        int id = Integer.parseInt(data[1]);
+        int idx = 0;
 
         if (!map.containsKey(d)) {
             map.put(d, mapIdx);
             mapIdx++;
-            que[map.get(d)] = new PriorityQueue<>();
+            idx = map.get(d);
+            que[idx] = new PriorityQueue<>();
+            set[idx] = new HashSet<>();
         }
 
-        que[map.get(d)].offer(new Tuple(p, t, u));
+        idx = map.get(d);
+
+        if (set[idx].contains(id)) {
+            return;
+        }
+
+        que[map.get(d)].add(new Tuple(p, t, id));
         size++;
-        set.add(u);
+        set[idx].add(id);
     }
 
     static void assign(int t) {
@@ -99,7 +111,7 @@ public class Main {
             return;
         }
 
-        Tuple minTuple = new Tuple(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
+        Tuple minTuple = new Tuple(Integer.MAX_VALUE, Integer.MAX_VALUE, 0);
         int minIdx = 0;
 
         for (int i = 1; i < mapIdx; i++) {
@@ -119,7 +131,7 @@ public class Main {
             int idx = idxQue.poll();
 
             size--;
-            set.remove(que[minIdx].poll().u);
+            set[minIdx].remove(que[minIdx].poll().id);
             info[minIdx][0] = idx;
             info[minIdx][1] = t;
             grader[idx] = minIdx;
