@@ -99,19 +99,30 @@ public class Main {
             return;
         }
 
+        Tuple minTuple = new Tuple(Integer.MAX_VALUE, Integer.MAX_VALUE, "");
+        int minIdx = 0;
+
         for (int i = 1; i < mapIdx; i++) {
-            if (que[i].isEmpty() || info[i][0] > 0 || t < info[i][2]) {
+            if (que[i].isEmpty() || info[i][0] > 0 || info[i][2] > t) {
                 continue;
             }
 
+            Tuple tuple = que[i].peek();
+
+            if (minTuple.compareTo(tuple) > 0) {
+                minTuple = tuple;
+                minIdx = i;
+            }
+        }
+
+        if (minIdx > 0) {
             int idx = idxQue.poll();
 
             size--;
-            set.remove(que[i].poll().u);
-            info[i][0] = idx;
-            info[i][1] = t;
-            grader[idx] = i;
-            break;
+            set.remove(que[minIdx].poll().u);
+            info[minIdx][0] = idx;
+            info[minIdx][1] = t;
+            grader[idx] = minIdx;
         }
     }
 
@@ -125,7 +136,6 @@ public class Main {
         idxQue.offer(idx1);
         info[idx2][0] = 0;
         info[idx2][2] = t * 3 - info[idx2][1] * 2;
-        grader[idx1] = 0;
     }
 
     static void check() {
