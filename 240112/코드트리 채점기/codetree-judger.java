@@ -26,6 +26,7 @@ public class Main {
     static int mapIdx = 1;
     static HashSet<String> set = new HashSet<>();
     static PriorityQueue<Tuple> waitingQue = new PriorityQueue<>();
+    static int size = 0;
     static PriorityQueue<Integer> idxQue = new PriorityQueue<>();
     static int[][] info = new int[301][3];
     static int[] grader = new int[50001];
@@ -67,6 +68,7 @@ public class Main {
         mapIdx++;
         set.add(u);
         waitingQue.offer(new Tuple(1, 0, u));
+        size++;
 
         for (int i = 1; i <= n; i++) {
             idxQue.offer(i);
@@ -87,6 +89,7 @@ public class Main {
 
         set.add(u);
         waitingQue.offer(new Tuple(p, t, u));
+        size++;
     }
 
     static void assign(int t) {
@@ -105,6 +108,7 @@ public class Main {
             int idx2 = idxQue.poll();
 
             set.remove(temp.u);
+            size--;
             info[idx1][0] = idx2;
             info[idx1][1] = t;
             grader[idx2] = idx1;
@@ -130,6 +134,6 @@ public class Main {
     }
 
     static void check() {
-        sb.append(waitingQue.size()).append("\n");
+        sb.append(size).append("\n");
     }
 }
