@@ -24,9 +24,9 @@ public class Main {
 
     static HashMap<String, Integer> map = new HashMap<>();
     static int mapIdx = 1;
-    static HashSet<String> set = new HashSet<>();
-    static PriorityQueue<Tuple> waitingQue = new PriorityQueue<>();
+    static PriorityQueue<Tuple>[] que = new PriorityQueue[301];
     static int size = 0;
+    static HashSet<String> set = new HashSet<>();
     static PriorityQueue<Integer> idxQue = new PriorityQueue<>();
     static int[][] info = new int[301][3];
     static int[] grader = new int[50001];
@@ -66,9 +66,10 @@ public class Main {
 
         map.put(d, mapIdx);
         mapIdx++;
-        set.add(u);
-        waitingQue.offer(new Tuple(1, 0, u));
+        que[map.get(d)] = new PriorityQueue<>();
+        que[map.get(d)].offer(new Tuple(1, 0, u));
         size++;
+        set.add(u);
 
         for (int i = 1; i <= n; i++) {
             idxQue.offer(i);
@@ -85,38 +86,32 @@ public class Main {
         if (!map.containsKey(d)) {
             map.put(d, mapIdx);
             mapIdx++;
+            que[map.get(d)] = new PriorityQueue<>();
         }
 
-        set.add(u);
-        waitingQue.offer(new Tuple(p, t, u));
+        que[map.get(d)].offer(new Tuple(p, t, u));
         size++;
+        set.add(u);
     }
 
     static void assign(int t) {
-        ArrayList<Tuple> tuples = new ArrayList<>();
+        if (idxQue.isEmpty()) {
+            return;
+        }
 
-        while (!waitingQue.isEmpty() && !idxQue.isEmpty()) {
-            Tuple temp = waitingQue.poll();
-            String d = temp.u.split("/")[0];
-            int idx1 = map.get(d);
-
-            if (info[idx1][0] > 0 || t < info[idx1][2] * 3 - info[idx1][1] * 2) {
-                tuples.add(temp);
+        for (int i = 1; i < mapIdx; i++) {
+            if (que[i].isEmpty() || info[i][0] > 0 || t < info[i][2]) {
                 continue;
             }
 
-            int idx2 = idxQue.poll();
+            int idx = idxQue.poll();
 
-            set.remove(temp.u);
             size--;
-            info[idx1][0] = idx2;
-            info[idx1][1] = t;
-            grader[idx2] = idx1;
+            set.remove(que[i].poll().u);
+            info[i][0] = idx;
+            info[i][1] = t;
+            grader[idx] = i;
             break;
-        }
-
-        for (Tuple tuple : tuples) {
-            waitingQue.offer(tuple);
         }
     }
 
@@ -129,7 +124,7 @@ public class Main {
 
         idxQue.offer(idx1);
         info[idx2][0] = 0;
-        info[idx2][2] = t;
+        info[idx2][2] = t * 3 - info[idx2][1] * 2;
         grader[idx1] = 0;
     }
 
