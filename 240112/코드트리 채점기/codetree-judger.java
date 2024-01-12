@@ -121,7 +121,7 @@ public class Main {
 
             Tuple tuple = que[i].peek();
 
-            if (minTuple.compareTo(tuple) > 0) {
+            if (minTuple.p > tuple.p || (minTuple.p == tuple.p && minTuple.t > tuple.t)) {
                 minTuple = tuple;
                 minIdx = i;
             }
