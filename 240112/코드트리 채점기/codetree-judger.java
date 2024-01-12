@@ -24,10 +24,10 @@ public class Main {
 
     static HashMap<String, Integer> map = new HashMap<>();
     static int mapIdx = 1;
-    static PriorityQueue<Tuple>[] que = new PriorityQueue[301];
+    static PriorityQueue<Integer> idxQue = new PriorityQueue<>();
+    static PriorityQueue<Tuple>[] queArr = new PriorityQueue[301];
     static int size = 0;
     static HashSet<String> set = new HashSet<>();
-    static PriorityQueue<Integer> idxQue = new PriorityQueue<>();
     static int[][] info = new int[301][3];
     static int[] grader = new int[50001];
     static StringBuilder sb = new StringBuilder();
@@ -62,18 +62,11 @@ public class Main {
     }
 
     static void init(int n, String u) {
-        String d = u.split("/")[0];
-
-        map.put(d, mapIdx);
-        mapIdx++;
-        que[map.get(d)] = new PriorityQueue<>();
-        que[map.get(d)].offer(new Tuple(1, 0, u));
-        size++;
-        set.add(u);
-
         for (int i = 1; i <= n; i++) {
             idxQue.offer(i);
         }
+        
+        request(0, 1, u);
     }
 
     static void request(int t, int p , String u) {
@@ -86,10 +79,10 @@ public class Main {
         if (!map.containsKey(d)) {
             map.put(d, mapIdx);
             mapIdx++;
-            que[map.get(d)] = new PriorityQueue<>();
+            queArr[map.get(d)] = new PriorityQueue<>();
         }
 
-        que[map.get(d)].offer(new Tuple(p, t, u));
+        queArr[map.get(d)].offer(new Tuple(p, t, u));
         size++;
         set.add(u);
     }
@@ -103,11 +96,11 @@ public class Main {
         int minIdx = 0;
 
         for (int i = 1; i < mapIdx; i++) {
-            if (que[i].isEmpty() || info[i][0] > 0 || info[i][2] > t) {
+            if (queArr[i].isEmpty() || info[i][0] > 0 || info[i][2] > t) {
                 continue;
             }
 
-            Tuple tuple = que[i].peek();
+            Tuple tuple = queArr[i].peek();
 
             if (minTuple.compareTo(tuple) > 0) {
                 minTuple = tuple;
@@ -119,7 +112,7 @@ public class Main {
             int idx = idxQue.poll();
 
             size--;
-            set.remove(que[minIdx].poll().u);
+            set.remove(queArr[minIdx].poll().u);
             info[minIdx][0] = idx;
             info[minIdx][1] = t;
             grader[idx] = minIdx;
